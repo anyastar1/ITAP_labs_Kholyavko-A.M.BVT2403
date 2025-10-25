@@ -1,0 +1,6 @@
+2025-10-23T20:38:29.336829 — CustomAgeException: Недопустимый возраст: 150
+2025-10-23T20:38:36.567728 — CustomDivisionException: Деление на ноль запрещено!
+2025-10-23T20:38:42.460232 — CustomFileNotFoundException: Файл не найден: nofile.txt
+2025-10-23T20:38:47.828333 — CustomNumberFormatException: Строка 'abc' не является числом!
+2025-10-23T20:39:01.585339 — CustomEmptyStackException: Попытка извлечь элемент из пустого стека!
+2025-10-24T11:55:03.813123 — CustomAgeException: Недопустимый возраст: 150
