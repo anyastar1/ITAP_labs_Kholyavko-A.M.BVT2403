@@ -2,7 +2,7 @@ import java.util. List;
 import java.util. stream.Collectors;
 import java.util. stream.Stream;
 
-public class FilterProcessor {
+public class Filter {
 
     @DataProcessor(description = "Фильтрует пустые строки", priority = 1)
     public List<String> filterEmptyLines(Stream<String> dataStream) {
