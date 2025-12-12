@@ -1,8 +1,8 @@
 import java.io.*;
-import java. lang.reflect.Method;
+import java.lang.reflect.Method;
 import java.nio.file.*;
 import java.util.*;
-import java. util.concurrent.*;
+import java.util.concurrent.*;
 import java.util.stream.*;
 
 public class DataManager {
@@ -13,7 +13,7 @@ public class DataManager {
     );
 
     public void registerDataProcessor(Object processor) {
-        processors. add(processor);
+        processors.add(processor);
     }
 
     public void loadData(String source) {
@@ -24,37 +24,53 @@ public class DataManager {
             System.err.println("Ошибка загрузки " + e.getMessage());
         }
     }
+    
     public void processData() {
-        List<Future<? >> futures = new ArrayList<>();
-
+     
+        List<Method> methods = new ArrayList<>();
         for (Object processor : processors) {
             for (Method method : processor.getClass().getDeclaredMethods()) {
-                if (method. isAnnotationPresent(DataProcessor.class)) {
-                    Future<? > future = executor. submit(() -> {
-                        try {
-                            @SuppressWarnings("unchecked")
-                            List<String> result = (List<String>) method.invoke(processor, data.stream());
-                            synchronized (this) {
-                                data = result;
-                            }
-                            System.out.println("Выполнен обработчик: " + method.getName());
-                        } catch (Exception e) {
-                            System.err.println("Ошибка обработки: " + e.getMessage());
-                        }
-                    });
-                    futures.add(future);
+                if (method.isAnnotationPresent(DataProcessor.class)) {
+                    methods.add(method);
                 }
             }
         }
-
-        for (Future<?> future : futures) {
+        
+       
+        methods.sort(Comparator.comparingInt(m -> 
+            m.getAnnotation(DataProcessor.class).priority()
+        ));
+        
+     
+        for (Method method : methods) {
             try {
-                future.get();
+                System.out.println("Выполняется обработчик: " + method.getName() + 
+                                 " с приоритетом: " + 
+                                 method.getAnnotation(DataProcessor.class).priority());
+                
+            
+                Stream<String> stream = data.stream();
+                
+                
+                Object processorInstance = method.getDeclaringClass().getDeclaredConstructor().newInstance();
+                
+
+                @SuppressWarnings("unchecked")
+                List<String> result = (List<String>) method.invoke(processorInstance, stream);
+                
+               
+                data = result;
+                System.out.println("Данные после обработки " + method.getName() + 
+                                 ": " + data);
+                
             } catch (Exception e) {
+                System.err.println("Ошибка обработки в методе " + method.getName() + 
+                                 ": " + e.getMessage());
                 e.printStackTrace();
             }
         }
     }
+    
     public void saveData(String destination) {
         try {
             Files.write(Paths.get(destination), data);
